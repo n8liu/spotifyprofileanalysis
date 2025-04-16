@@ -1,0 +1,7 @@
+requests
+python-dotenv
+pyspark
+Flask
+Flask-Session
+requests-oauthlib
+pandas

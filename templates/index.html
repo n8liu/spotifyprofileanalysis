@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spotify Data Analytics</title>
+    <style>
+        body { 
+        font-family: Arial, sans-serif; margin: 0; padding: 0; background: #fafafa; 
+        /* diameter of the circle */
+        --d: 2px; 
+        background : radial-gradient(
+            circle at 
+                var(--d) 
+                var(--d), 
+            #513989 calc(var(--d) - 2px), 
+            #121212 var(--d)
+        ) 
+        0 0 / 50px 50px fixed;
+        background-color: #121212;
+        }
+        .container { max-width: 1200px; margin: 20px auto; background: #fff; padding: 24px; border-radius: 10px; box-shadow: 0 2px 8px #0001; }
+        h1, h2, h3 { margin-top: 0; }
+        .flex { display: flex; flex-wrap: wrap; gap: 24px; }
+        .card { background: #f6f6f6; border-radius: 8px; padding: 16px; flex: 1 1 350px; min-width: 300px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 4px 8px; }
+        th { background: #e9e9e9; }
+        .scroll-table { max-height: 350px; overflow-y: auto; display: block; }
+        .playlist-section { margin-bottom: 20px; }
+        .playlist-header { cursor: pointer; background: #e9e9e9; padding: 8px; border-radius: 6px; margin-bottom: 4px; }
+        .playlist-tracks { display: none; }
+    </style>
+    <script>
+    function toggleTracks(id) {
+        var el = document.getElementById(id);
+        if (el.style.display === 'none' || el.style.display === '') {
+            el.style.display = 'block';
+        } else {
+            el.style.display = 'none';
+        }
+    }
+    </script>
+</head>
+<body>
+<div class="container">
+    <h1>Spotify Data Analytics</h1>
+    {% if user_info %}
+        <p>Logged in as <b>{{ user_info['display_name'] or user_info['id'] }}</b> ({{ user_info['email'] }})
+        <a href="{{ url_for('logout') }}">Logout</a></p>
+    {% else %}
+        <a href="{{ url_for('login') }}">Login with Spotify</a>
+    {% endif %}
+    <div class="flex">
+        <div class="card" style="min-width:320px;max-width:400px;">
+            <h2>Top 20 Genres</h2>
+            <ol>
+                {% for genre in top_genres %}
+                    <li>{{ genre }}</li>
+                {% endfor %}
+            </ol>
+            <h2 style="margin-top:32px;">Artists (Most → Least Popular)</h2>
+            <div class="scroll-table">
+            <table>
+                <tr><th>#</th><th>Name</th><th>Popularity</th><th>Genres</th></tr>
+                {% for artist in sorted_artists_by_popularity %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ artist['name'] }}</td>
+                    <td>{{ artist['popularity'] }}</td>
+                    <td>{{ ', '.join(artist['genres']) if artist['genres'] else 'Unknown' }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            </div>
+        </div>
+        <div class="card" style="flex:2;min-width:400px;">
+            <h2>Top 50 Artists</h2>
+            <div class="scroll-table">
+            <table>
+                <tr><th>#</th><th>Name</th><th>Genres</th><th>Followers</th><th>Popularity</th></tr>
+                {% for artist in top_artists %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ artist['name'] }}</td>
+                    <td>{{ ', '.join(artist['genres']) if artist['genres'] else 'Unknown' }}</td>
+                    <td>{{ artist['followers']['total'] }}</td>
+                    <td>{{ artist['popularity'] }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            </div>
+            <h2 style="margin-top:32px;">Top 50 Tracks</h2>
+            <div class="scroll-table">
+            <table>
+                <tr><th>#</th><th>Name</th><th>Artist</th><th>Album</th></tr>
+                {% for track in top_tracks %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ track['name'] }}</td>
+                    <td>{{ track['artists'][0]['name'] }}</td>
+                    <td>{{ track['album']['name'] }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            </div>
+        </div>
+    </div>
+    <div class="card" style="margin-top:32px;">
+        <h2>All Playlists & Songs</h2>
+        {% for pl_name, pl_tracks in playlists_tracks.items() %}
+            <div class="playlist-section">
+                <div class="playlist-header" onclick="toggleTracks('pl{{ loop.index }}')">
+                    <b>{{ pl_name }}</b> ({{ pl_tracks|length }} songs) - Click to expand/collapse
+                </div>
+                <div class="playlist-tracks" id="pl{{ loop.index }}">
+                    <div class="scroll-table">
+                    <table>
+                        <tr><th>Name</th><th>Artist</th><th>Album</th></tr>
+                        {% for track in pl_tracks %}
+                            <tr>
+                                <td>{{ track['name'] }}</td>
+                                <td>{{ track['artists'][0]['name'] if track['artists'] else '' }}</td>
+                                <td>{{ track['album']['name'] if track['album'] else '' }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+</body>
+</html>
