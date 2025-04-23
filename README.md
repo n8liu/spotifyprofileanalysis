@@ -2,6 +2,8 @@
 
 A comprehensive project for analyzing your personal Spotify listening data with a modern, interactive Flask dashboard and full ETL/data science pipeline.
 
+<img width="1776" alt="analyticexample" src="https://github.com/user-attachments/assets/e9a74596-7e51-48f7-ada9-0edafba1916b" />
+
 ## Features
 - **Live Spotify Analytics Dashboard** (Flask):
   - Login with Spotify (OAuth2)
